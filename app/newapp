@@ -1,0 +1,205 @@
+GIVE ME DETAILED ROBUST CODE FOR ALL THE FILES DONT GIVE TEXT JUST GIVE CODE
+
+🌟 Core Features Overview
+URL Categorization Engine
+
+Video Blocking (Real-time)
+
+Watch Time Stats Dashboard
+
+Category-Based Time Limiters
+
+Manual + AI-Based Categorization
+
+Pomodoro Timer Integration
+
+Firebase Sync for Cross-Device Data
+
+Pro Features (with Stripe for payments)      --------Awesome! Below is a detailed development plan for your Productivity Chrome Extension including:
+
+🔧 Folder/File Structure
+
+🤖 Prompts for AI categorization
+
+🧠 Feature-specific explanations
+
+🚀 Project Name: VideoWatchGuard
+📁 File Structure
+pgsql
+Copy
+Edit
+videowatchguard-extension/
+├── manifest.json
+├── background.js
+├── content.js
+├── popup.html
+├── popup.js
+├── popup.css
+├── dashboard.html
+├── dashboard.js
+├── dashboard.css
+├── options.html
+├── options.js
+├── icons/
+│   ├── icon16.png
+│   ├── icon48.png
+│   └── icon128.png
+├── utils/
+│   ├── categorizer.js
+│   ├── storage.js
+│   └── timer.js
+├── rules/
+│   └── blockRules.json
+├── data/
+│   └── watchStats.json
+└── prompts/
+    └── categorizePrompt.txt
+🔍 Feature Breakdown & Files
+1. 🧠 AI Categorization (Study, Entertainment, etc.)
+🔹 File: utils/categorizer.js
+
+You can use basic rules or even integrate with an external LLM like GPT or Gemini via API.
+Use this prompt:
+
+txt
+Copy
+Edit
+📁 prompts/categorizePrompt.txt
+
+Prompt:
+"Given the YouTube video title, channel name, and URL, categorize it into one of the following:
+- Study
+- Educational
+- Entertainment
+- Motivation
+- Music
+- Others
+
+Return only one category.
+
+Example:
+Title: 'LoFi Music for Study'
+Channel: 'Lofi Girl'
+URL: https://youtube.com/watch?v=xyz123
+
+Response: Music"
+Later on, you can use chrome.runtime.sendMessage() to get this data in background.js.
+
+2. 🚫 Video Blocker
+🔹 File: background.js, rules/blockRules.json
+
+Logic:
+
+Load rules from blockRules.json
+
+On video URL match, inject a script or redirect
+
+js
+Copy
+Edit
+chrome.webRequest.onBeforeRequest.addListener(
+  function (details) {
+    return { cancel: true }; // blocks
+  },
+  { urls: ["://.youtube.com/watch*"], types: ["main_frame"] },
+  ["blocking"]
+);
+To allow flexible blocking:
+
+Block per category
+
+Block per video ID
+
+3. ⏱ Watch Time & Stats Tracker
+🔹 File: content.js, utils/timer.js, data/watchStats.json
+
+Track:
+
+Start time
+
+End time
+
+Video ID
+
+Time spent
+
+js
+Copy
+Edit
+let startTime = Date.now();
+window.addEventListener("beforeunload", () => {
+  const timeSpent = Date.now() - startTime;
+  chrome.runtime.sendMessage({ action: "logTime", videoId, timeSpent });
+});
+Save to chrome.storage.local.
+
+4. 📊 Dashboard UI
+🔹 File: dashboard.html, dashboard.js, dashboard.css
+
+Features:
+
+Category-wise pie chart (use Chart.js)
+
+Daily/Weekly breakdown
+
+Most watched categories
+
+Top 5 most-watched videos
+
+5. ⏳ Category-Based Limits
+🔹 File: options.html, options.js
+
+Let users:
+
+Set max daily limits per category
+
+Enable/disable blocking when limit hits
+
+Whitelist specific channels
+
+🧠 Enhancements & Smart Features
+Auto Categorization via LLMs (send video metadata to OpenAI/Gemini endpoint)
+
+Context-aware blocking: Block only after user crosses limit
+
+Pomodoro Mode: Watch timer with breaks
+
+Positive Reinforcement: Show encouraging messages if study time increases
+
+Dark Mode UI Toggle
+
+Cloud Sync with Firebase (Pro)
+
+🧠 Prompt Usage Example (If using OpenAI or Gemini API)
+js
+Copy
+Edit
+const prompt = `Given the YouTube video title: "${title}", channel: "${channel}", and url: "${url}", classify into:
+- Study
+- Educational
+- Entertainment
+- Motivation
+- Music
+- Others
+
+Respond with just one category.`;
+
+const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    "Authorization": Bearer ${API_KEY},
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    model: "gpt-4",
+    messages: [{ role: "user", content: prompt }]
+  })
+});
+📦 Future-Proofing & Premium Ideas
+🔐 Pro features (require login or Firebase auth)
+
+📈 Export stats as CSV
+
+🧘 Mindful reminders after binge-watching
+
+🌐 Sync watch history with multiple devices    
